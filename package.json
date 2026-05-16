@@ -1,0 +1,43 @@
+{
+  "name": "consta-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "relay": "node relay.js",
+    "backend": "node didit-backend.js"
+  },
+  "dependencies": {
+    "@vladmandic/face-api": "^1.7.15",
+    "bip39": "^3.1.0",
+    "mrz": "^5.0.2",
+    "next": "16.2.6",
+    "qrcode.react": "^4.2.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "cors": "^2.8.6",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.6",
+    "express": "^5.2.1",
+    "fast-check": "^4.8.0",
+    "jsdom": "^29.1.1",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^4.1.6",
+    "ws": "^8.20.1"
+  }
+}

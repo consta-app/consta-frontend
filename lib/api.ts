@@ -9,7 +9,7 @@
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-const USE_MOCKS =
+export const USE_MOCKS =
   (process.env.NEXT_PUBLIC_USE_MOCKS ?? "true").toLowerCase() !== "false";
 
 // ─── Tipos compartidos (espejo de los contratos del CLAUDE.md) ──────────────
@@ -38,6 +38,24 @@ export interface LoginBody {
   email_hash: string;
 }
 export interface LoginResponse {
+  session_token: string;
+  expires_at: string;
+}
+
+export interface ChallengeBody {
+  email_hash: string;
+}
+export interface ChallengeResponse {
+  challenge: string;
+  expires_at: string;
+}
+
+export interface VerifyBody {
+  email_hash: string;
+  challenge: string;
+  signature: string;
+}
+export interface VerifyResponse {
   session_token: string;
   expires_at: string;
 }
@@ -390,6 +408,20 @@ export async function login(body: LoginBody): Promise<LoginResponse> {
   };
 }
 
+export async function challenge(body: ChallengeBody): Promise<ChallengeResponse> {
+  return request<ChallengeResponse>("/auth/challenge", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function verify(body: VerifyBody): Promise<VerifyResponse> {
+  return request<VerifyResponse>("/auth/verify", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 export async function createDeclaration(
   body: CreateDeclarationBody,
 ): Promise<CreateDeclarationResponse> {
@@ -545,8 +577,13 @@ export async function getPublicProfile(
 export async function requestVerification(
   body: RequestVerificationBody,
 ): Promise<RequestVerificationResponse> {
-  // TODO: connect to backend endpoint — POST /verifications todavía no existe.
-  // Cuando se implemente, este bloque debería ser un request<>(...) real.
+  if (!USE_MOCKS) {
+    return request<RequestVerificationResponse>("/verifications", {
+      method: "POST",
+      body: JSON.stringify(body),
+      auth: true,
+    });
+  }
   ensureSeeded();
   const userId = getCurrentUserId();
   if (!userId) throw new ApiError(401, "Sesión requerida.");
@@ -575,7 +612,9 @@ export async function requestVerification(
 }
 
 export async function getMyVerifications(): Promise<MyVerificationsResponse> {
-  // TODO: connect to backend endpoint — GET /verifications/mine todavía no existe.
+  if (!USE_MOCKS) {
+    return request<MyVerificationsResponse>("/verifications/mine", { auth: true });
+  }
   ensureSeeded();
   const userId = getCurrentUserId();
   if (!userId) throw new ApiError(401, "Sesión requerida.");

@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button, Card, Field } from "@/components/ui";
-import { login, setSession, ApiError } from "@/lib/api";
+import { challenge, verify, login, setSession, ApiError, USE_MOCKS } from "@/lib/api";
+import { signContent } from "@/lib/crypto";
 import {
   isValidRecoveryPhrase,
   keypairFromPhrase,
@@ -32,23 +33,26 @@ export default function LoginPage() {
     }
 
     try {
-      // Derive the same keypair + identifier the user had at registration
       const seedHash = await userIdFromPhrase(cleaned);
       const { publicKey, privateKey } = await keypairFromPhrase(cleaned);
 
-      // In production, the backend would issue a challenge here, the client
-      // would sign it with privateKey, and the backend would verify the
-      // signature against the stored public key. With mocks, we just call login.
-      const session = await login({ email_hash: seedHash });
+      let sessionToken: string;
+      let userId: string;
 
-      // We need to know the user_id; in mocks, the login response only has
-      // the session token. We'll store the seed hash and let the app resolve
-      // the user from the token.
-      // For the mock, the session token format is "mock-jwt.<userId>.<ts>"
-      const userId = session.session_token.split(".")[1] ?? seedHash;
-      setSession(session.session_token, userId);
+      if (USE_MOCKS) {
+        const session = await login({ email_hash: seedHash });
+        sessionToken = session.session_token;
+        userId = session.session_token.split(".")[1] ?? seedHash;
+      } else {
+        const { challenge: nonce } = await challenge({ email_hash: seedHash });
+        const signature = await signContent(privateKey, nonce);
+        const session = await verify({ email_hash: seedHash, challenge: nonce, signature });
+        sessionToken = session.session_token;
+        const payload = JSON.parse(atob(sessionToken.split(".")[1]));
+        userId = payload.sub ?? seedHash;
+      }
 
-      // Restore the keypair to localStorage so signing works
+      setSession(sessionToken, userId);
       localStorage.setItem("consta:private_key", privateKey);
       localStorage.setItem("consta:public_key", publicKey);
       localStorage.setItem("consta:seed_hash", seedHash);

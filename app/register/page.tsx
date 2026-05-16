@@ -16,11 +16,15 @@ import {
 import {
   register,
   login,
+  challenge,
+  verify,
   setSession,
   ApiError,
+  USE_MOCKS,
   type Domain,
   type RiskLevel,
 } from "@/lib/api";
+import { signContent } from "@/lib/crypto";
 import {
   generateRecoveryPhrase,
   keypairFromPhrase,
@@ -75,18 +79,25 @@ export default function RegisterPage() {
       const { publicKey, privateKey } = await keypairFromPhrase(phrase);
 
       const res = await register({
-        email_hash: seedHash, // Use seed hash as identifier (replaces email)
+        email_hash: seedHash,
         public_key: publicKey,
         display_name: displayName.trim() ? displayName.trim() : null,
         domain,
         risk_level: risk,
       });
 
-      // Iniciar sesión inmediatamente
-      const session = await login({ email_hash: seedHash });
-      setSession(session.session_token, res.user_id);
+      let sessionToken: string;
+      if (USE_MOCKS) {
+        const session = await login({ email_hash: seedHash });
+        sessionToken = session.session_token;
+      } else {
+        const { challenge: nonce } = await challenge({ email_hash: seedHash });
+        const signature = await signContent(privateKey, nonce);
+        const session = await verify({ email_hash: seedHash, challenge: nonce, signature });
+        sessionToken = session.session_token;
+      }
+      setSession(sessionToken, res.user_id);
 
-      // La clave privada vive solo en este navegador.
       localStorage.setItem("consta:private_key", privateKey);
       localStorage.setItem("consta:public_key", publicKey);
       localStorage.setItem("consta:seed_hash", seedHash);

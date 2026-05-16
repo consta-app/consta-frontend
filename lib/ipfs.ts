@@ -1,6 +1,7 @@
-// STUB de la Persona 2 — IPFS simulado contra localStorage para que la demo
-// funcione sin Pinata. La Persona 1 entrega el módulo real; reemplazar este
-// archivo manteniendo las firmas.
+const USE_MOCKS =
+  (process.env.NEXT_PUBLIC_USE_MOCKS ?? "true").toLowerCase() !== "false";
+const PINATA_GATEWAY =
+  process.env.NEXT_PUBLIC_PINATA_GATEWAY ?? "https://gateway.pinata.cloud";
 
 const STORE_PREFIX = "ipfs-mock:";
 
@@ -9,9 +10,6 @@ function isBrowser() {
 }
 
 function fakeCid(seed: string): string {
-  // CIDv0 falso pero verosímil: "Qm" + 44 caracteres base58-like derivados
-  // determinísticamente del contenido para que el mismo texto produzca el
-  // mismo CID (útil para que verify y new sean coherentes).
   const alphabet =
     "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
   let hash = 0;
@@ -27,22 +25,39 @@ function fakeCid(seed: string): string {
 }
 
 export async function uploadToIPFS(text: string): Promise<string> {
-  const cid = fakeCid(text);
-  if (isBrowser()) {
-    localStorage.setItem(STORE_PREFIX + cid, text);
+  if (USE_MOCKS) {
+    const cid = fakeCid(text);
+    if (isBrowser()) localStorage.setItem(STORE_PREFIX + cid, text);
+    await new Promise((r) => setTimeout(r, 300));
+    return cid;
   }
-  // Pequeño delay para que la UI muestre el estado "subiendo".
-  await new Promise((r) => setTimeout(r, 300));
-  return cid;
+
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error(`Error al subir a IPFS: ${msg}`);
+  }
+  const { cid } = await res.json();
+  return cid as string;
 }
 
 export async function fetchFromIPFS(cid: string): Promise<string> {
-  if (isBrowser()) {
-    const text = localStorage.getItem(STORE_PREFIX + cid);
-    if (text != null) return text;
+  if (USE_MOCKS) {
+    if (isBrowser()) {
+      const text = localStorage.getItem(STORE_PREFIX + cid);
+      if (text != null) return text;
+    }
+    await new Promise((r) => setTimeout(r, 200));
+    return `[contenido IPFS no disponible en este dispositivo · CID ${cid}]`;
   }
-  // En SSR o cuando el CID no está en localStorage devolvemos un placeholder
-  // visible para que el equipo sepa que el contenido falta y no se rompa la UI.
-  await new Promise((r) => setTimeout(r, 200));
-  return `[contenido IPFS no disponible en este dispositivo · CID ${cid}]`;
+
+  const res = await fetch(`${PINATA_GATEWAY}/ipfs/${cid}`);
+  if (!res.ok) {
+    throw new Error(`Contenido IPFS no disponible: ${cid}`);
+  }
+  return res.text();
 }

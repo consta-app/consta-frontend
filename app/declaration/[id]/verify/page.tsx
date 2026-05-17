@@ -59,7 +59,9 @@ function downloadText(text: string, filename: string) {
 }
 
 function downloadBytes(bytes: Uint8Array, filename: string, mime: string) {
-  const url = URL.createObjectURL(new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)], { type: mime }));
+  const ab = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(ab).set(bytes);
+  const url = URL.createObjectURL(new Blob([ab], { type: mime }));
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;

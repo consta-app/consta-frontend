@@ -90,6 +90,7 @@ export default function ContactsPage() {
       const created: ContactItem = {
         id: res.contact_id,
         contact_name: name.trim() ? name.trim() : null,
+        contact_info: cleanEmail,
         confirmed: res.confirmed,
         created_at: new Date().toISOString(),
       };

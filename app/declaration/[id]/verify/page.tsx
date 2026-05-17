@@ -219,12 +219,12 @@ export default function VerifyDeclarationPage({
                     <div className="space-y-2">
                       <Mono>{data.timestamp_token}</Mono>
                       <div className="flex flex-wrap gap-3">
-                        <button
+                        <span
                           onClick={() => downloadBase64(data.timestamp_token, `consta-${data.declaration_id}.tsr`, "application/timestamp-reply")}
-                          className="cursor-pointer bg-transparent border-0 p-0 text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          className="cursor-pointer text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                         >
                           Descargar .tsr →
-                        </button>
+                        </span>
                         <a
                           href="https://www.freetsa.org/index_en.php"
                           target="_blank"
@@ -256,12 +256,12 @@ export default function VerifyDeclarationPage({
                     )}
                     {data.blockchain_tx && (
                       <div className="flex flex-wrap gap-3">
-                        <button
+                        <span
                           onClick={() => downloadBase64(data.blockchain_tx, `consta-${data.declaration_id}.ots`, "application/octet-stream")}
-                          className="cursor-pointer bg-transparent border-0 p-0 text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          className="cursor-pointer text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                         >
                           Descargar .ots →
-                        </button>
+                        </span>
                         <a
                           href="https://opentimestamps.org"
                           target="_blank"

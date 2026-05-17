@@ -49,6 +49,47 @@ function downloadBase64(b64: string, filename: string, mime: string) {
   URL.revokeObjectURL(url);
 }
 
+function downloadText(text: string, filename: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadBytes(bytes: Uint8Array, filename: string, mime: string) {
+  const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Reconstructs the deterministic TSQ (no nonce) from the content hash hex.
+// Mirrors buildTSQ() in consta-backend/src/services/timestamp.js exactly.
+function buildTSQ(hashHex: string): Uint8Array {
+  const concat = (...parts: Uint8Array[]) => {
+    const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+    let offset = 0;
+    for (const p of parts) { out.set(p, offset); offset += p.length; }
+    return out;
+  };
+  const tlv = (tag: number, content: Uint8Array) =>
+    concat(new Uint8Array([tag, content.length]), content);
+
+  const hashBytes = new Uint8Array(hashHex.match(/.{2}/g)!.map(h => parseInt(h, 16)));
+  const sha256Oid = new Uint8Array([0x06,0x09,0x60,0x86,0x48,0x01,0x65,0x03,0x04,0x02,0x01]);
+  const nullTag   = new Uint8Array([0x05, 0x00]);
+  const algId     = tlv(0x30, concat(sha256Oid, nullTag));
+  const hashOctet = tlv(0x04, hashBytes);
+  const msgImp    = tlv(0x30, concat(algId, hashOctet));
+  const version   = new Uint8Array([0x02, 0x01, 0x01]);
+  const certReq   = new Uint8Array([0x01, 0x01, 0xff]);
+  return tlv(0x30, concat(version, msgImp, certReq));
+}
+
 export default function VerifyDeclarationPage({
   params,
 }: {
@@ -220,6 +261,12 @@ export default function VerifyDeclarationPage({
                       <Mono>{data.timestamp_token}</Mono>
                       <div className="flex flex-wrap gap-3">
                         <span
+                          onClick={() => downloadBytes(buildTSQ(data.content_hash), `consta-${data.declaration_id}.tsq`, "application/timestamp-query")}
+                          className="cursor-pointer text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                        >
+                          Descargar .tsq →
+                        </span>
+                        <span
                           onClick={() => downloadBase64(data.timestamp_token, `consta-${data.declaration_id}.tsr`, "application/timestamp-reply")}
                           className="cursor-pointer text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                         >
@@ -235,7 +282,7 @@ export default function VerifyDeclarationPage({
                         </a>
                       </div>
                       <p className="text-xs text-text-dim">
-                        En FreeTSA: sube el archivo .tsr y el texto original descargado desde IPFS.
+                        En FreeTSA: sube el .tsq y el .tsr juntos.
                       </p>
                     </div>
                   ) : (
@@ -256,6 +303,14 @@ export default function VerifyDeclarationPage({
                     )}
                     {data.blockchain_tx && (
                       <div className="flex flex-wrap gap-3">
+                        {content && (
+                          <span
+                            onClick={() => downloadText(content, `consta-${data.declaration_id}.txt`)}
+                            className="cursor-pointer text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          >
+                            Descargar texto original →
+                          </span>
+                        )}
                         <span
                           onClick={() => downloadBase64(data.blockchain_tx, `consta-${data.declaration_id}.ots`, "application/octet-stream")}
                           className="cursor-pointer text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
@@ -274,7 +329,7 @@ export default function VerifyDeclarationPage({
                     )}
                     {data.blockchain_tx && (
                       <p className="text-xs text-text-dim">
-                        En OpenTimestamps: sube el archivo .ots y el texto original descargado desde IPFS.
+                        En OpenTimestamps: sube el texto original y el .ots juntos.
                       </p>
                     )}
                   </div>

@@ -2,7 +2,7 @@
 // Client for Didit KYC verification sessions.
 // Always calls the real didit-backend.js server (separate from app mocks).
 
-import { ApiError, getCurrentUserId } from "./api";
+import { ApiError, getCurrentUserId, getSessionToken } from "./api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -31,9 +31,13 @@ export async function createDiditSession(): Promise<DiditSession> {
   const userId = getCurrentUserId();
   if (!userId) throw new ApiError(401, "Sesión requerida.");
 
+  const token = getSessionToken();
   const res = await fetch(`${API_URL}/verifications/didit/session`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({ user_id: userId }),
   });
   if (!res.ok) {
@@ -54,8 +58,10 @@ export async function createDiditSession(): Promise<DiditSession> {
 export async function getDiditSessionStatus(
   sessionId: string
 ): Promise<DiditStatus> {
+  const token = getSessionToken();
   const res = await fetch(
-    `${API_URL}/verifications/didit/session/${encodeURIComponent(sessionId)}/status`
+    `${API_URL}/verifications/didit/session/${encodeURIComponent(sessionId)}/status`,
+    { headers: token ? { Authorization: `Bearer ${token}` } : {} }
   );
   if (!res.ok) {
     throw new ApiError(res.status, "Error fetching session status");

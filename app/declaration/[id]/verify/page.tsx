@@ -292,20 +292,12 @@ export default function VerifyDeclarationPage({
                           className="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full border border-accent/40 bg-accent/10 font-mono text-xs text-accent"
                           aria-hidden
                         >
-                          {v.type === "org"
-                            ? "◆"
-                            : v.type === "video"
-                              ? "▶"
-                              : "✓"}
+                          {v.type === "org" ? "◆" : "✓"}
                         </span>
                         <div className="space-y-1">
                           <p className="text-text text-sm">{v.name}</p>
                           <Pill className="border-accent/40 text-accent">
-                            {v.type === "org"
-                              ? "Organización"
-                              : v.type === "video"
-                                ? "Video"
-                                : "Par"}
+                            {v.type === "org" ? "Organización" : "Biométrica"}
                           </Pill>
                         </div>
                       </div>

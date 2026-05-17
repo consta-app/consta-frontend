@@ -12,6 +12,7 @@ import {
 } from "@/lib/api";
 import { fetchFromIPFS } from "@/lib/ipfs";
 import { sha256 } from "@/lib/crypto";
+import { verifyOTSLive, type OTSResult } from "@/lib/ots";
 
 type IntegrityState =
   | { status: "idle" }
@@ -104,6 +105,7 @@ export default function VerifyDeclarationPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [integrity, setIntegrity] = useState<IntegrityState>({ status: "idle" });
+  const [ots, setOts] = useState<OTSResult | { status: "checking" }>({ status: "checking" });
 
   useEffect(() => {
     let cancelled = false;
@@ -136,6 +138,21 @@ export default function VerifyDeclarationPage({
       cancelled = true;
     };
   }, [id]);
+
+  // Verifica OTS en vivo cada vez que cargamos la declaración: sin depender
+  // del flag del backend, preguntamos directo a los calendarios y Bitcoin.
+  useEffect(() => {
+    if (!data?.blockchain_tx || !data?.content_hash) {
+      setOts({ status: "pending" });
+      return;
+    }
+    let cancelled = false;
+    setOts({ status: "checking" });
+    verifyOTSLive(data.blockchain_tx, data.content_hash).then(res => {
+      if (!cancelled) setOts(res);
+    });
+    return () => { cancelled = true; };
+  }, [data?.blockchain_tx, data?.content_hash]);
 
   async function checkIntegrity() {
     if (!data || content == null) return;
@@ -296,12 +313,30 @@ export default function VerifyDeclarationPage({
                     Bitcoin (OTS)
                   </span>
                   <div className="space-y-2">
-                    {data.blockchain_confirmed ? (
-                      <p className="text-sm text-accent font-mono">✓ Anclada en Bitcoin</p>
-                    ) : data.blockchain_tx ? (
-                      <p className="text-sm text-yellow-500 font-mono">⏳ Pendiente de confirmación (~1 hora)</p>
-                    ) : (
+                    {!data.blockchain_tx ? (
                       <p className="text-sm text-text-dim font-mono">Sin anclaje en blockchain</p>
+                    ) : ots.status === "checking" ? (
+                      <p className="text-sm text-text-dim font-mono">Verificando contra Bitcoin…</p>
+                    ) : ots.status === "confirmed" ? (
+                      <p className="text-sm text-accent font-mono">
+                        ✓ Anclada en Bitcoin · bloque{" "}
+                        <a
+                          href={`https://mempool.space/block/${ots.blockHeight}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:text-accent"
+                        >
+                          {ots.blockHeight.toLocaleString()}
+                        </a>
+                      </p>
+                    ) : ots.status === "pending" ? (
+                      <p className="text-sm text-yellow-500 font-mono">
+                        ⏳ Pendiente de confirmación en Bitcoin (~1 hora)
+                      </p>
+                    ) : (
+                      <p className="text-sm text-danger font-mono">
+                        No se pudo verificar contra los calendarios.
+                      </p>
                     )}
                     {data.blockchain_tx && (
                       <>

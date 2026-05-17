@@ -56,7 +56,7 @@ function HeroContent({ isMasked }: { isMasked?: boolean }) {
             href="/declaration/demo-declaration-1/verify"
             className="inline-flex items-center rounded border border-border-strong text-text-muted hover:text-text px-5 py-2.5 text-sm transition-colors"
           >
-            Ver declaración pública
+            Ver declaraciones públicas
           </Link>
         </div>
       </div>

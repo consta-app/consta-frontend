@@ -78,6 +78,19 @@ export interface DeclarationVerification {
   name: string;
   at: string;
 }
+export interface PublicDeclarationItem {
+  id: string;
+  user_display: string;
+  domain: Domain;
+  risk_level: RiskLevel;
+  blockchain_confirmed: boolean;
+  verification_count: number;
+  created_at: string;
+}
+export interface ListDeclarationsResponse {
+  declarations: PublicDeclarationItem[];
+}
+
 export interface VerifyDeclarationResponse {
   declaration_id: string;
   user_display: string;
@@ -457,6 +470,32 @@ export async function createDeclaration(
     timestamp_token: decl.timestamp_token,
     blockchain_tx: decl.blockchain_tx,
     created_at: decl.created_at,
+  };
+}
+
+export async function listDeclarations(): Promise<ListDeclarationsResponse> {
+  if (!USE_MOCKS) {
+    return request<ListDeclarationsResponse>("/declarations");
+  }
+  ensureSeeded();
+  const decls = readArr<MockDeclaration>(MOCK.declarations).filter(d => d.is_public);
+  const users = readArr<MockUser>(MOCK.users);
+  return {
+    declarations: decls
+      .slice()
+      .reverse()
+      .map(d => {
+        const user = users.find(u => u.user_id === d.user_id);
+        return {
+          id: d.declaration_id,
+          user_display: user?.display_name ?? "Anónimo",
+          domain: user?.domain ?? "otro",
+          risk_level: user?.risk_level ?? "bajo",
+          blockchain_confirmed: false,
+          verification_count: d.verifications.filter(v => v.type !== "user").length,
+          created_at: d.created_at,
+        };
+      }),
   };
 }
 

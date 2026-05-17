@@ -53,7 +53,7 @@ function HeroContent({ isMasked }: { isMasked?: boolean }) {
             Iniciar sesión
           </Link>
           <Link
-            href="/declaration/demo-declaration-1/verify"
+            href="/declarations"
             className="inline-flex items-center rounded border border-border-strong text-text-muted hover:text-text px-5 py-2.5 text-sm transition-colors"
           >
             Ver declaraciones públicas

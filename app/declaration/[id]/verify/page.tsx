@@ -217,11 +217,11 @@ export default function VerifyDeclarationPage({
                   </span>
                   {data.timestamp_token ? (
                     <div className="space-y-2">
-                      <Mono className="break-all text-xs">{data.timestamp_token.slice(0, 64)}…</Mono>
+                      <Mono>{data.timestamp_token}</Mono>
                       <div className="flex flex-wrap gap-3">
                         <button
                           onClick={() => downloadBase64(data.timestamp_token, `consta-${data.declaration_id}.tsr`, "application/timestamp-reply")}
-                          className="text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          className="inline-block text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                         >
                           Descargar .tsr →
                         </button>
@@ -229,7 +229,7 @@ export default function VerifyDeclarationPage({
                           href="https://www.freetsa.org/index_en.php"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          className="inline-block text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                         >
                           Verificar en FreeTSA →
                         </a>
@@ -258,7 +258,7 @@ export default function VerifyDeclarationPage({
                       <div className="flex flex-wrap gap-3">
                         <button
                           onClick={() => downloadBase64(data.blockchain_tx, `consta-${data.declaration_id}.ots`, "application/octet-stream")}
-                          className="text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          className="inline-block text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                         >
                           Descargar .ots →
                         </button>
@@ -266,7 +266,7 @@ export default function VerifyDeclarationPage({
                           href="https://opentimestamps.org"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          className="inline-block text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                         >
                           Verificar en OpenTimestamps →
                         </a>

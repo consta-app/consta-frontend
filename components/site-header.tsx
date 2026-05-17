@@ -9,6 +9,7 @@ export function SiteHeader({ minimal = false }: { minimal?: boolean }) {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [showLogoConfirm, setShowLogoConfirm] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -25,19 +26,61 @@ export function SiteHeader({ minimal = false }: { minimal?: boolean }) {
     router.push("/");
   }
 
+  function handleLogoConfirm() {
+    handleLogout();
+    setShowLogoConfirm(false);
+  }
+
   return (
+    <>
+    {showLogoConfirm && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+        <div className="w-full max-w-sm rounded border border-border-strong bg-bg p-6 space-y-4">
+          <p className="text-text text-sm leading-relaxed">
+            ¿Salir al inicio? Esto cerrará tu sesión. Podrás volver con tu frase de 12 palabras.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setShowLogoConfirm(false)}
+              className="rounded border border-border-strong px-4 py-2 text-sm text-text-muted hover:text-text transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleLogoConfirm}
+              className="rounded border border-danger/60 px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors"
+            >
+              Salir
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     <header className="border-b border-border">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-        <Link
-          href="/"
-          className="text-xl tracking-tight text-text hover:text-accent transition-colors"
-          style={{
-            fontFamily: '"DejaVu Serif Condensed", "DejaVu Serif", serif',
-            fontWeight: 700,
-          }}
-        >
-          consta
-        </Link>
+        {mounted && userId ? (
+          <button
+            onClick={() => setShowLogoConfirm(true)}
+            className="text-xl tracking-tight text-text hover:text-accent transition-colors"
+            style={{
+              fontFamily: '"DejaVu Serif Condensed", "DejaVu Serif", serif',
+              fontWeight: 700,
+            }}
+          >
+            consta
+          </button>
+        ) : (
+          <Link
+            href="/"
+            className="text-xl tracking-tight text-text hover:text-accent transition-colors"
+            style={{
+              fontFamily: '"DejaVu Serif Condensed", "DejaVu Serif", serif',
+              fontWeight: 700,
+            }}
+          >
+            consta
+          </Link>
+        )}
         {!minimal && (
           <nav className="flex items-center gap-6 text-sm text-text-muted">
             <Link
@@ -93,5 +136,6 @@ export function SiteHeader({ minimal = false }: { minimal?: boolean }) {
         )}
       </div>
     </header>
+    </>
   );
 }

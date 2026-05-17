@@ -66,6 +66,7 @@ export default function RegisterPage() {
   const [risk, setRisk] = useState<RiskLevel>("medio");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [done, setDone] = useState<{
     userId: string;
     publicKey: string;
@@ -194,12 +195,27 @@ export default function RegisterPage() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    navigator.clipboard?.writeText(phrase).catch(() => {})
-                  }
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(phrase);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    } catch {
+                      const el = document.createElement("textarea");
+                      el.value = phrase;
+                      el.style.position = "fixed";
+                      el.style.opacity = "0";
+                      document.body.appendChild(el);
+                      el.select();
+                      document.execCommand("copy");
+                      document.body.removeChild(el);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }
+                  }}
                   className="text-sm text-text-muted hover:text-text underline"
                 >
-                  Copiar al portapapeles
+                  {copied ? "✓ Copiada" : "Copiar al portapapeles"}
                 </button>
 
                 <div className="flex justify-between gap-3">

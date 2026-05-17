@@ -297,11 +297,11 @@ export default function VerifyDeclarationPage({
                   </span>
                   <div className="space-y-2">
                     {data.blockchain_confirmed ? (
-                      <span className="text-sm text-accent font-mono">✓ Anclada en Bitcoin</span>
+                      <p className="text-sm text-accent font-mono">✓ Anclada en Bitcoin</p>
                     ) : data.blockchain_tx ? (
-                      <span className="text-sm text-yellow-500 font-mono">⏳ Pendiente de confirmación (~1 hora)</span>
+                      <p className="text-sm text-yellow-500 font-mono">⏳ Pendiente de confirmación (~1 hora)</p>
                     ) : (
-                      <span className="text-sm text-text-dim font-mono">Sin anclaje en blockchain</span>
+                      <p className="text-sm text-text-dim font-mono">Sin anclaje en blockchain</p>
                     )}
                     {data.blockchain_tx && (
                       <>

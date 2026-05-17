@@ -304,35 +304,36 @@ export default function VerifyDeclarationPage({
                       <span className="text-sm text-text-dim font-mono">Sin anclaje en blockchain</span>
                     )}
                     {data.blockchain_tx && (
-                      <div className="flex flex-wrap gap-3">
-                        {content && (
+                      <>
+                        <Mono>{data.blockchain_tx}</Mono>
+                        <div className="flex flex-wrap gap-3">
+                          {content && (
+                            <span
+                              onClick={() => downloadText(content, `consta-${data.declaration_id}.txt`)}
+                              className="cursor-pointer text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                            >
+                              Descargar texto original →
+                            </span>
+                          )}
                           <span
-                            onClick={() => downloadText(content, `consta-${data.declaration_id}.txt`)}
+                            onClick={() => downloadBase64(data.blockchain_tx, `consta-${data.declaration_id}.ots`, "application/octet-stream")}
                             className="cursor-pointer text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                           >
-                            Descargar texto original →
+                            Descargar .ots →
                           </span>
-                        )}
-                        <span
-                          onClick={() => downloadBase64(data.blockchain_tx, `consta-${data.declaration_id}.ots`, "application/octet-stream")}
-                          className="cursor-pointer text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
-                        >
-                          Descargar .ots →
-                        </span>
-                        <a
-                          href="https://opentimestamps.org"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-block text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
-                        >
-                          Verificar en OpenTimestamps →
-                        </a>
-                      </div>
-                    )}
-                    {data.blockchain_tx && (
-                      <p className="text-xs text-text-dim">
-                        En OpenTimestamps: sube el texto original y el .ots juntos.
-                      </p>
+                          <a
+                            href="https://opentimestamps.org"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          >
+                            Verificar en OpenTimestamps →
+                          </a>
+                        </div>
+                        <p className="text-xs text-text-dim">
+                          En OpenTimestamps: sube el texto original y el .ots juntos.
+                        </p>
+                      </>
                     )}
                   </div>
                 </div>

@@ -85,6 +85,7 @@ export default function ContactsPage() {
       const res = await createContact({
         contact_hash: contactHash,
         contact_name: name.trim() ? name.trim() : null,
+        contact_info: cleanEmail,
       });
       const created: ContactItem = {
         id: res.contact_id,
@@ -159,8 +160,7 @@ export default function ContactsPage() {
           <div className="space-y-1">
             <h2 className="text-text">Agregar un contacto</h2>
             <p className="text-xs text-text-dim">
-              Su correo se hashea con SHA-256 antes de salir del navegador. El
-              backend nunca ve el correo en claro.
+              Su correo se guarda para poder enviarle alertas si tu check-in expira.
             </p>
           </div>
 

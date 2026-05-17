@@ -102,6 +102,7 @@ export interface CheckinResponse {
 export interface CreateContactBody {
   contact_hash: string;
   contact_name: string | null;
+  contact_info: string;
 }
 export interface CreateContactResponse {
   contact_id: string;
@@ -110,6 +111,7 @@ export interface CreateContactResponse {
 export interface ContactItem {
   id: string;
   contact_name: string | null;
+  contact_info: string | null;
   confirmed: boolean;
   created_at: string;
 }
@@ -528,6 +530,7 @@ export async function createContact(
   const contact: ContactItem = {
     id: uuid(),
     contact_name: body.contact_name,
+    contact_info: body.contact_info,
     confirmed: false,
     created_at: nowIso(),
   };

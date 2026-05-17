@@ -199,9 +199,26 @@ export default function VerifyDeclarationPage({
                 </div>
                 <div className="p-4 grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-2">
                   <span className="text-xs text-text-dim font-mono uppercase tracking-[0.15em]">
-                    Blockchain tx
+                    Bitcoin (OTS)
                   </span>
-                  <Mono>{data.blockchain_tx}</Mono>
+                  <div className="space-y-2">
+                    {data.blockchain_confirmed ? (
+                      <span className="inline-flex items-center gap-1.5 text-sm text-accent font-mono">
+                        ✓ Anclada en Bitcoin
+                      </span>
+                    ) : data.blockchain_tx ? (
+                      <span className="inline-flex items-center gap-1.5 text-sm text-yellow-500 font-mono">
+                        ⏳ Pendiente de confirmación (~1 hora)
+                      </span>
+                    ) : (
+                      <span className="text-sm text-text-dim font-mono">
+                        Sin anclaje en blockchain
+                      </span>
+                    )}
+                    {data.blockchain_tx && (
+                      <Mono className="block text-xs break-all">{data.blockchain_tx}</Mono>
+                    )}
+                  </div>
                 </div>
               </Card>
             </section>

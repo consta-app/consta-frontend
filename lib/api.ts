@@ -86,6 +86,7 @@ export interface VerifyDeclarationResponse {
   ipfs_cid: string;
   timestamp_token: string;
   blockchain_tx: string;
+  blockchain_confirmed: boolean;
   created_at: string;
   verifications: DeclarationVerification[];
 }
@@ -481,6 +482,7 @@ export async function verifyDeclaration(
     ipfs_cid: decl.ipfs_cid,
     timestamp_token: decl.timestamp_token,
     blockchain_tx: decl.blockchain_tx,
+    blockchain_confirmed: false,
     created_at: decl.created_at,
     verifications: decl.verifications,
   };

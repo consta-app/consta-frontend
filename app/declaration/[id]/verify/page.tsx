@@ -39,6 +39,16 @@ function formatDate(iso: string): string {
   }
 }
 
+function downloadBase64(b64: string, filename: string, mime: string) {
+  const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function VerifyDeclarationPage({
   params,
 }: {
@@ -189,13 +199,48 @@ export default function VerifyDeclarationPage({
                   <span className="text-xs text-text-dim font-mono uppercase tracking-[0.15em]">
                     IPFS CID
                   </span>
-                  <Mono>{data.ipfs_cid}</Mono>
+                  <div className="space-y-2">
+                    <Mono className="break-all">{data.ipfs_cid}</Mono>
+                    <a
+                      href={`https://cid.ipfs.tech/#${data.ipfs_cid}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                    >
+                      Verificar CID externamente →
+                    </a>
+                  </div>
                 </div>
                 <div className="p-4 grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-2">
                   <span className="text-xs text-text-dim font-mono uppercase tracking-[0.15em]">
-                    Timestamp (RFC 3161)
+                    Timestamp RFC 3161
                   </span>
-                  <Mono>{data.timestamp_token}</Mono>
+                  {data.timestamp_token ? (
+                    <div className="space-y-2">
+                      <Mono className="break-all text-xs">{data.timestamp_token.slice(0, 64)}…</Mono>
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          onClick={() => downloadBase64(data.timestamp_token, `consta-${data.declaration_id}.tsr`, "application/timestamp-reply")}
+                          className="text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                        >
+                          Descargar .tsr →
+                        </button>
+                        <a
+                          href="https://www.freetsa.org/index_en.php"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                        >
+                          Verificar en FreeTSA →
+                        </a>
+                      </div>
+                      <p className="text-xs text-text-dim">
+                        En FreeTSA: sube el archivo .tsr y el texto original descargado desde IPFS.
+                      </p>
+                    </div>
+                  ) : (
+                    <Mono className="text-text-dim text-xs">No disponible</Mono>
+                  )}
                 </div>
                 <div className="p-4 grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-2">
                   <span className="text-xs text-text-dim font-mono uppercase tracking-[0.15em]">
@@ -203,20 +248,34 @@ export default function VerifyDeclarationPage({
                   </span>
                   <div className="space-y-2">
                     {data.blockchain_confirmed ? (
-                      <span className="inline-flex items-center gap-1.5 text-sm text-accent font-mono">
-                        ✓ Anclada en Bitcoin
-                      </span>
+                      <span className="text-sm text-accent font-mono">✓ Anclada en Bitcoin</span>
                     ) : data.blockchain_tx ? (
-                      <span className="inline-flex items-center gap-1.5 text-sm text-yellow-500 font-mono">
-                        ⏳ Pendiente de confirmación (~1 hora)
-                      </span>
+                      <span className="text-sm text-yellow-500 font-mono">⏳ Pendiente de confirmación (~1 hora)</span>
                     ) : (
-                      <span className="text-sm text-text-dim font-mono">
-                        Sin anclaje en blockchain
-                      </span>
+                      <span className="text-sm text-text-dim font-mono">Sin anclaje en blockchain</span>
                     )}
                     {data.blockchain_tx && (
-                      <Mono className="block text-xs break-all">{data.blockchain_tx}</Mono>
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          onClick={() => downloadBase64(data.blockchain_tx, `consta-${data.declaration_id}.ots`, "application/octet-stream")}
+                          className="text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                        >
+                          Descargar .ots →
+                        </button>
+                        <a
+                          href="https://opentimestamps.org"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                        >
+                          Verificar en OpenTimestamps →
+                        </a>
+                      </div>
+                    )}
+                    {data.blockchain_tx && (
+                      <p className="text-xs text-text-dim">
+                        En OpenTimestamps: sube el archivo .ots y el texto original descargado desde IPFS.
+                      </p>
                     )}
                   </div>
                 </div>

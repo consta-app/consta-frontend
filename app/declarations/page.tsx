@@ -5,7 +5,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Card, Pill, Mono } from "@/components/ui";
-import { listDeclarations, type PublicDeclarationItem } from "@/lib/api";
+import { listDeclarations, getBitcoinStatus, type PublicDeclarationItem, type BitcoinStatusResponse } from "@/lib/api";
 
 const domainLabels: Record<string, string> = {
   periodista: "Periodista",
@@ -37,10 +37,21 @@ export default function DeclarationsPage() {
   const [declarations, setDeclarations] = useState<PublicDeclarationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bitcoinStatus, setBitcoinStatus] = useState<Record<string, BitcoinStatusResponse>>({});
 
   useEffect(() => {
     listDeclarations()
-      .then(res => setDeclarations(res.declarations))
+      .then(res => {
+        setDeclarations(res.declarations);
+        // Fire live OTS checks for all unconfirmed declarations in parallel
+        res.declarations
+          .filter(d => !d.blockchain_confirmed)
+          .forEach(d => {
+            getBitcoinStatus(d.id).then(status => {
+              setBitcoinStatus(prev => ({ ...prev, [d.id]: status }));
+            }).catch(() => {});
+          });
+      })
       .catch(() => setError("No se pudieron cargar las declaraciones."))
       .finally(() => setLoading(false));
   }, []);
@@ -99,11 +110,20 @@ export default function DeclarationsPage() {
                     </div>
                     <div className="text-right space-y-1">
                       <p className="text-xs text-text-dim font-mono">{formatDate(d.created_at)}</p>
-                      {d.blockchain_confirmed ? (
-                        <p className="text-xs text-accent font-mono">✓ Bitcoin</p>
-                      ) : (
-                        <p className="text-xs text-text-dim font-mono">⏳ Pendiente</p>
-                      )}
+                      {(() => {
+                        const live = bitcoinStatus[d.id];
+                        const confirmed = live
+                          ? live.status === "confirmed"
+                          : d.blockchain_confirmed;
+                        const checking = !live && !d.blockchain_confirmed;
+                        if (confirmed) {
+                          return <p className="text-xs text-accent font-mono">✓ Bitcoin</p>;
+                        }
+                        if (checking) {
+                          return <p className="text-xs text-text-dim font-mono animate-pulse">⏳ …</p>;
+                        }
+                        return <p className="text-xs text-text-dim font-mono">⏳ Pendiente</p>;
+                      })()}
                     </div>
                   </div>
 

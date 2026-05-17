@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
@@ -58,7 +58,8 @@ const riskOptions: { value: RiskLevel; label: string; desc: string }[] = [
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
-  const [phrase] = useState<string>(() => generateRecoveryPhrase());
+  const [phrase, setPhrase] = useState<string>("");
+  useEffect(() => { setPhrase(generateRecoveryPhrase()); }, []);
   const [confirmedSaved, setConfirmedSaved] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [domain, setDomain] = useState<Domain>("periodista");

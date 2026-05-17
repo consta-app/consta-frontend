@@ -221,7 +221,7 @@ export default function VerifyDeclarationPage({
                       <div className="flex flex-wrap gap-3">
                         <button
                           onClick={() => downloadBase64(data.timestamp_token, `consta-${data.declaration_id}.tsr`, "application/timestamp-reply")}
-                          className="inline-block text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          className="cursor-pointer bg-transparent border-0 p-0 text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                         >
                           Descargar .tsr →
                         </button>
@@ -258,7 +258,7 @@ export default function VerifyDeclarationPage({
                       <div className="flex flex-wrap gap-3">
                         <button
                           onClick={() => downloadBase64(data.blockchain_tx, `consta-${data.declaration_id}.ots`, "application/octet-stream")}
-                          className="inline-block text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
+                          className="cursor-pointer bg-transparent border-0 p-0 text-xs font-mono text-text-muted hover:text-accent underline transition-colors"
                         >
                           Descargar .ots →
                         </button>

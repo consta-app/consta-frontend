@@ -550,6 +550,20 @@ export async function listContacts(): Promise<ListContactsResponse> {
   return { contacts: map[userId] ?? [] };
 }
 
+export interface ConfirmContactResponse {
+  confirmed: boolean;
+  contact_name: string | null;
+}
+
+export async function confirmContact(
+  token: string,
+): Promise<ConfirmContactResponse> {
+  return request<ConfirmContactResponse>("/contacts/confirm", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}
+
 export async function getPublicProfile(
   id: string,
 ): Promise<PublicProfileResponse> {

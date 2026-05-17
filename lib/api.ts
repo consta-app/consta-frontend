@@ -499,6 +499,20 @@ export async function listDeclarations(): Promise<ListDeclarationsResponse> {
   };
 }
 
+export type BitcoinStatusResponse =
+  | { status: "confirmed"; block_height: number }
+  | { status: "pending"; error?: string }
+  | { status: "none" };
+
+export async function getBitcoinStatus(id: string): Promise<BitcoinStatusResponse> {
+  if (!USE_MOCKS) {
+    return request<BitcoinStatusResponse>(
+      `/declarations/${encodeURIComponent(id)}/bitcoin-status`,
+    );
+  }
+  return { status: "pending" };
+}
+
 export async function verifyDeclaration(
   id: string,
 ): Promise<VerifyDeclarationResponse> {

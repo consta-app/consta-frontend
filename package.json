@@ -15,7 +15,6 @@
   "dependencies": {
     "@vladmandic/face-api": "^1.7.15",
     "bip39": "^3.1.0",
-    "javascript-opentimestamps": "^0.4.5",
     "mrz": "^5.0.2",
     "next": "16.2.6",
     "qrcode.react": "^4.2.0",

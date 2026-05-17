@@ -7,12 +7,13 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button, Card, Mono, Pill } from "@/components/ui";
 import {
   verifyDeclaration,
+  getBitcoinStatus,
   type VerifyDeclarationResponse,
+  type BitcoinStatusResponse,
   ApiError,
 } from "@/lib/api";
 import { fetchFromIPFS } from "@/lib/ipfs";
 import { sha256 } from "@/lib/crypto";
-import { verifyOTSLive, type OTSResult } from "@/lib/ots";
 
 type IntegrityState =
   | { status: "idle" }
@@ -105,7 +106,7 @@ export default function VerifyDeclarationPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [integrity, setIntegrity] = useState<IntegrityState>({ status: "idle" });
-  const [ots, setOts] = useState<OTSResult | { status: "checking" }>({ status: "checking" });
+  const [ots, setOts] = useState<BitcoinStatusResponse | { status: "checking" }>({ status: "checking" });
 
   useEffect(() => {
     let cancelled = false;
@@ -139,20 +140,18 @@ export default function VerifyDeclarationPage({
     };
   }, [id]);
 
-  // Verifica OTS en vivo cada vez que cargamos la declaración: sin depender
-  // del flag del backend, preguntamos directo a los calendarios y Bitcoin.
+  // Verifica el estado en Bitcoin via backend cada vez que cargamos la página.
+  // El backend hace la llamada en vivo a los calendarios OTS (no podemos
+  // hacerlo desde el navegador por CORS) y cachea la altura una vez confirmada.
   useEffect(() => {
-    if (!data?.blockchain_tx || !data?.content_hash) {
-      setOts({ status: "pending" });
-      return;
-    }
+    if (!data?.declaration_id) return;
     let cancelled = false;
     setOts({ status: "checking" });
-    verifyOTSLive(data.blockchain_tx, data.content_hash).then(res => {
-      if (!cancelled) setOts(res);
-    });
+    getBitcoinStatus(data.declaration_id)
+      .then(res => { if (!cancelled) setOts(res); })
+      .catch(() => { if (!cancelled) setOts({ status: "pending" }); });
     return () => { cancelled = true; };
-  }, [data?.blockchain_tx, data?.content_hash]);
+  }, [data?.declaration_id]);
 
   async function checkIntegrity() {
     if (!data || content == null) return;
@@ -321,21 +320,17 @@ export default function VerifyDeclarationPage({
                       <p className="text-sm text-accent font-mono">
                         ✓ Anclada en Bitcoin · bloque{" "}
                         <a
-                          href={`https://mempool.space/block/${ots.blockHeight}`}
+                          href={`https://mempool.space/block/${ots.block_height}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="underline hover:text-accent"
                         >
-                          {ots.blockHeight.toLocaleString()}
+                          {ots.block_height.toLocaleString()}
                         </a>
                       </p>
-                    ) : ots.status === "pending" ? (
+                    ) : (
                       <p className="text-sm text-yellow-500 font-mono">
                         ⏳ Pendiente de confirmación en Bitcoin (~1 hora)
-                      </p>
-                    ) : (
-                      <p className="text-sm text-danger font-mono">
-                        No se pudo verificar contra los calendarios.
                       </p>
                     )}
                     {data.blockchain_tx && (

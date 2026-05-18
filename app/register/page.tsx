@@ -135,7 +135,7 @@ export default function RegisterPage() {
 
         {!done && (
           <>
-            <ol className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.15em] text-text-dim">
+            <ol className="flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] text-text-dim">
               <Pill className={step >= 1 ? "border-accent text-accent" : ""}>
                 01 Frase
               </Pill>

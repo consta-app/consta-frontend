@@ -207,7 +207,7 @@ export default function NewDeclarationPage() {
                 Preview de cómo se verá públicamente
               </summary>
               <div className="mt-4 space-y-3">
-                <pre className="font-mono whitespace-pre-wrap text-text">
+                <pre className="font-mono whitespace-pre-wrap break-words text-text overflow-x-auto">
 {text || "(escribe algo arriba para ver el preview)"}
                 </pre>
               </div>

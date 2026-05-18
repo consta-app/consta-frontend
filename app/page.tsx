@@ -89,7 +89,7 @@ export default function LandingPage() {
 
         {/* Mission & Etymology Section */}
         <section className="border-t border-border bg-black/20 relative z-10">
-          <div className="mx-auto max-w-5xl px-6 py-24 grid md:grid-cols-2 gap-16 md:gap-8 items-center">
+          <div className="mx-auto max-w-5xl px-6 py-16 md:py-24 grid md:grid-cols-2 gap-12 md:gap-8 items-center">
             
             {/* Left: Mission */}
             <div className="space-y-6 max-w-lg">
@@ -126,7 +126,7 @@ export default function LandingPage() {
             </div>
 
             {/* Right: Etymology Breakdown */}
-            <div className="flex justify-center md:justify-end">
+            <div className="flex justify-start md:justify-end">
               <div className="relative w-fit">
                 <h3 
                   className="inline-block text-5xl tracking-tight text-white mb-2"

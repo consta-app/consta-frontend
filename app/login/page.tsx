@@ -106,7 +106,7 @@ export default function LoginPage() {
 
           {error && <p className="text-sm text-danger">{error}</p>}
 
-          <div className="flex justify-between gap-3 items-center">
+          <div className="flex flex-wrap justify-between gap-3 items-center">
             <Link
               href="/register"
               className="text-sm text-text-muted hover:text-text"

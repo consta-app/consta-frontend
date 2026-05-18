@@ -193,7 +193,7 @@ export default function CheckinPage() {
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-text-dim">
                 Intervalo
               </p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {intervals.map((days) => (
                   <button
                     key={days}

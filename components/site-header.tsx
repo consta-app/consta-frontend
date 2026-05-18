@@ -10,6 +10,7 @@ export function SiteHeader({ minimal = false }: { minimal?: boolean }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [showLogoConfirm, setShowLogoConfirm] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -18,11 +19,11 @@ export function SiteHeader({ minimal = false }: { minimal?: boolean }) {
 
   function handleLogout() {
     clearSession();
-    // Also clear the keypair from localStorage
     localStorage.removeItem("consta:private_key");
     localStorage.removeItem("consta:public_key");
     localStorage.removeItem("consta:seed_hash");
     setUserId(null);
+    setMenuOpen(false);
     router.push("/");
   }
 
@@ -82,59 +83,101 @@ export function SiteHeader({ minimal = false }: { minimal?: boolean }) {
           </Link>
         )}
         {!minimal && (
-          <nav className="flex items-center gap-6 text-sm text-text-muted">
-            <Link
-              href="/declaration/new"
-              className="hover:text-text transition-colors"
+          <>
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center gap-6 text-sm text-text-muted">
+              <Link href="/declaration/new" className="hover:text-text transition-colors">
+                Nueva declaración
+              </Link>
+              <Link href="/checkin" className="hover:text-text transition-colors">
+                Check-in
+              </Link>
+              <Link href="/contacts" className="hover:text-text transition-colors">
+                Contactos
+              </Link>
+              {mounted && userId ? (
+                <>
+                  <Link href={`/profile/${userId}`} className="hover:text-text transition-colors">
+                    Mi perfil
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="rounded border border-border-strong px-3 py-1.5 hover:border-danger hover:text-danger transition-colors"
+                  >
+                    Cerrar sesión
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="hover:text-text transition-colors">
+                    Iniciar sesión
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="rounded border border-border-strong px-3 py-1.5 hover:border-accent hover:text-accent transition-colors"
+                  >
+                    Registrarse
+                  </Link>
+                </>
+              )}
+            </nav>
+
+            {/* Mobile hamburger button */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden flex flex-col justify-center gap-1.5 p-1 text-text-muted hover:text-text transition-colors"
+              aria-label="Menú"
             >
+              <span className={`block h-px w-5 bg-current transition-transform origin-center ${menuOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
+              <span className={`block h-px w-5 bg-current transition-opacity ${menuOpen ? 'opacity-0' : ''}`} />
+              <span className={`block h-px w-5 bg-current transition-transform origin-center ${menuOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Mobile menu */}
+      {!minimal && menuOpen && (
+        <div className="md:hidden border-t border-border bg-bg">
+          <nav className="mx-auto max-w-5xl px-6 py-4 flex flex-col gap-4 text-sm text-text-muted">
+            <Link href="/declaration/new" onClick={() => setMenuOpen(false)} className="hover:text-text transition-colors">
               Nueva declaración
             </Link>
-            <Link
-              href="/checkin"
-              className="hover:text-text transition-colors"
-            >
+            <Link href="/checkin" onClick={() => setMenuOpen(false)} className="hover:text-text transition-colors">
               Check-in
             </Link>
-            <Link
-              href="/contacts"
-              className="hover:text-text transition-colors"
-            >
+            <Link href="/contacts" onClick={() => setMenuOpen(false)} className="hover:text-text transition-colors">
               Contactos
             </Link>
             {mounted && userId ? (
               <>
-                <Link
-                  href={`/profile/${userId}`}
-                  className="hover:text-text transition-colors"
-                >
+                <Link href={`/profile/${userId}`} onClick={() => setMenuOpen(false)} className="hover:text-text transition-colors">
                   Mi perfil
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="rounded border border-border-strong px-3 py-1.5 hover:border-danger hover:text-danger transition-colors"
+                  className="text-left rounded border border-border-strong px-3 py-2 text-danger hover:bg-danger/10 transition-colors w-fit"
                 >
                   Cerrar sesión
                 </button>
               </>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="hover:text-text transition-colors"
-                >
+                <Link href="/login" onClick={() => setMenuOpen(false)} className="hover:text-text transition-colors">
                   Iniciar sesión
                 </Link>
                 <Link
                   href="/register"
-                  className="rounded border border-border-strong px-3 py-1.5 hover:border-accent hover:text-accent transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded border border-border-strong px-3 py-2 hover:border-accent hover:text-accent transition-colors w-fit"
                 >
                   Registrarse
                 </Link>
               </>
             )}
           </nav>
-        )}
-      </div>
+        </div>
+      )}
     </header>
     </>
   );

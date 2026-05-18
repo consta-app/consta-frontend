@@ -112,7 +112,7 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white font-mono uppercase tracking-wider">100% Open Source</h4>
+                  <h4 className="text-sm font-bold text-white font-mono uppercase tracking-wider">Open Source</h4>
                   <p className="text-xs text-text-muted mt-0.5">Auditable por cualquier persona. Sin cajas negras.</p>
                 </div>
                 <Link href="https://github.com/consta-app/consta" target="_blank" className="ml-auto text-xs text-text-muted hover:text-white transition-colors flex items-center gap-1 group">
